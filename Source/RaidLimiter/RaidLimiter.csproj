@@ -46,11 +46,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
+    <Compile Include="Mod.cs" />
     <Compile Include="MyLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaidLimiter.cs" />
     <Compile Include="RaidLimiterDebug.cs" />
     <Compile Include="RaidLimiterSettingsDef.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
