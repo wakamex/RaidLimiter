@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Raid Limiter (Continued)</name>
   <packageId>Mlie.RaidLimiter</packageId>
@@ -23,6 +23,8 @@
   <description>[img]https://i.imgur.com/WAEzk68.png[/img]
 Update of Greeps mod
 https://ludeon.com/forums/index.php?topic=42721.0
+
+- The settings are now editable in game. Will only use the xml-based values on first run.
 
 [img]https://i.imgur.com/7Gzt3Rg.png[/img]
 

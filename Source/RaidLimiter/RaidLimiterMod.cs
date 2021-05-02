@@ -87,7 +87,7 @@ namespace RaidLimiter
             listing_Standard.Label("Raid Cap Points Per Colonist", -1,
                 "Does what it says. Change from -1 to a number you want if you want to use this and your raid cap will be based off your number of colonists. If you have 25 colonists and you set this to 10, your raids will be capped at 2500");
             Settings.RaidCapPointsPerColonist = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
-                Settings.RaidCapPointsPerColonist, -1f, 50f, false, Settings.RaidCapPointsPerColonist.ToString(), null,
+                Settings.RaidCapPointsPerColonist, -1f, 200f, false, Settings.RaidCapPointsPerColonist.ToString(), null,
                 null, 1);
             listing_Standard.Gap();
             listing_Standard.Label("Colonist Multiplier", -1,
