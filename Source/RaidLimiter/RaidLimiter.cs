@@ -61,13 +61,11 @@ namespace RaidLimiter
                 }
                 else
                 {
-                    var flag = pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer && !pawn.Downed &&
-                               pawn.training.CanAssignToTrain(TrainableDefOf.Release).Accepted;
-                    if (flag)
+                    if (pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer && !pawn.Downed &&
+                        pawn.training.CanAssignToTrain(TrainableDefOf.Release).Accepted)
                     {
                         num4 = 0.09f * pawn.kindDef.combatPower;
-                        var flag2 = target is Caravan;
-                        if (flag2)
+                        if (target is Caravan)
                         {
                             num4 *= 0.5f;
                         }
@@ -76,14 +74,12 @@ namespace RaidLimiter
                     }
                 }
 
-                var flag3 = num4 > 0f;
-                if (!flag3)
+                if (!(num4 > 0f))
                 {
                     continue;
                 }
 
-                var flag4 = pawn.ParentHolder is Building_CryptosleepCasket;
-                if (flag4)
+                if (pawn.ParentHolder is Building_CryptosleepCasket)
                 {
                     num4 *= 0.3f;
                 }
@@ -96,8 +92,7 @@ namespace RaidLimiter
             num5 *= target.IncidentPointsRandomFactorRange.RandomInRange;
             num5 = simpleCurve3.Evaluate(num5);
             var num6 = Find.StoryWatcher.watcherAdaptation.TotalThreatPointsFactor;
-            var flag5 = dynamicSettings.AdaptationTapering > 0f && num6 > dynamicSettings.AdaptationTapering;
-            if (flag5)
+            if (dynamicSettings.AdaptationTapering > 0f && num6 > dynamicSettings.AdaptationTapering)
             {
                 MyLog.Log("adaptation Before AdaptationTapering: " + num6);
                 num6 = dynamicSettings.AdaptationTapering =
@@ -105,8 +100,7 @@ namespace RaidLimiter
                 MyLog.Log("adaptation after AdaptationTapering: " + num6);
             }
 
-            var flag6 = dynamicSettings.AdaptationCap > 0f && num6 > dynamicSettings.AdaptationCap;
-            if (flag6)
+            if (dynamicSettings.AdaptationCap > 0f && num6 > dynamicSettings.AdaptationCap)
             {
                 MyLog.Log("adaptation Before AdaptationCap: " + num6);
                 num6 = dynamicSettings.AdaptationCap;
@@ -118,8 +112,7 @@ namespace RaidLimiter
             MyLog.Log("Before RaidPointsMultiplier: " + num5);
             num5 *= dynamicSettings.RaidPointsMultiplier;
             MyLog.Log("After RaidPointsMultiplier: " + num5);
-            var flag7 = dynamicSettings.SoftCapBeginTapering > 0f && num5 > dynamicSettings.SoftCapBeginTapering;
-            if (flag7)
+            if (dynamicSettings.SoftCapBeginTapering > 0f && num5 > dynamicSettings.SoftCapBeginTapering)
             {
                 MyLog.Log("Before SoftCapBeginTapering: " + num5);
                 num5 = dynamicSettings.SoftCapBeginTapering =
@@ -127,24 +120,21 @@ namespace RaidLimiter
                 MyLog.Log("After SoftCapBeginTapering: " + num5);
             }
 
-            var flag8 = dynamicSettings.RaidCapPointsPerColonist > 0f;
-            if (flag8)
+            if (dynamicSettings.RaidCapPointsPerColonist > 0f)
             {
                 MyLog.Log("Before RaidCapPointsPerColonist: " + num5);
                 num5 = Math.Min(num5, dynamicSettings.RaidCapPointsPerColonist * num3);
                 MyLog.Log("After RaidCapPointsPerColonist: " + num5);
             }
 
-            var flag9 = dynamicSettings.RaidCap > 0f;
-            if (flag9)
+            if (dynamicSettings.RaidCap > 0f)
             {
                 MyLog.Log("Before RaidCap: " + num5);
                 num5 = Math.Min(dynamicSettings.RaidCap, num5);
                 MyLog.Log("After RaidCap: " + num5);
             }
 
-            var flag10 = dynamicSettings.CapByDifficultySettings;
-            if (flag10)
+            if (dynamicSettings.CapByDifficultySettings)
             {
                 MyLog.Log("Before CapByDifficultySettings: " + num5);
                 num5 = Math.Min(

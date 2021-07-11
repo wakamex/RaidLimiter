@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Check the ludeon forum page on raid size limiter for more information which will be up to date
+-->
+  <RaidLimiter.RaidLimiterSettingsDef>
+    <defName>Settings</defName>
+    <CapByDifficultySettings>YES</CapByDifficultySettings>
+    <CapByDifficultySettingsMultiplier>4000</CapByDifficultySettingsMultiplier>
+    <!-- 1700 is a good default for medium difficulty-->
+    <RaidCap>-1</RaidCap>
+    <RaidPointsMultiplier>1</RaidPointsMultiplier>
+    <RaidCapPointsPerColonist>-1</RaidCapPointsPerColonist>
+    <ColonistMultiplier>1</ColonistMultiplier>
+    <CombatAnimalMultiplier>1</CombatAnimalMultiplier>
+    <WealthMultiplier>1</WealthMultiplier>
+    <SoftCapBeginTapering>-1</SoftCapBeginTapering>
+    <SoftCapExponent>.9</SoftCapExponent>
+    <AdaptationCap>1.5</AdaptationCap>
+    <AdaptationTapering>-1</AdaptationTapering>
+    <AdaptationExponent>1</AdaptationExponent>
+    <Debug>YES</Debug>
+  </RaidLimiter.RaidLimiterSettingsDef>
+</Defs>

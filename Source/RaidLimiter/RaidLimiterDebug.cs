@@ -25,8 +25,7 @@ namespace RaidLimiter
             else
             {
                 MyLog.Log("Using Raid Limiter");
-                var flag2 = incCat == null;
-                if (flag2)
+                if (incCat == null)
                 {
                     Log.Warning("Trying to get default parms for null incident category.");
                 }
