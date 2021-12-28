@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -7,7 +7,6 @@ using Verse;
 
 namespace RaidLimiter
 {
-    // Token: 0x02000006 RID: 6
     [HarmonyPatch(typeof(StorytellerUtility))]
     [HarmonyPatch("DefaultThreatPointsNow")]
     [HarmonyPatch(new[]
@@ -16,7 +15,6 @@ namespace RaidLimiter
     })]
     internal class RaidLimiter
     {
-        // Token: 0x06000007 RID: 7 RVA: 0x000021A0 File Offset: 0x000003A0
         private static bool Prefix(IIncidentTarget target, ref float __result)
         {
             var simpleCurve = new SimpleCurve

@@ -1,17 +1,14 @@
-﻿using Verse;
+using Verse;
 
-namespace RaidLimiter
+namespace RaidLimiter;
+
+internal static class MyLog
 {
-    // Token: 0x02000004 RID: 4
-    internal static class MyLog
+    public static void Log(string message)
     {
-        // Token: 0x06000004 RID: 4 RVA: 0x00002088 File Offset: 0x00000288
-        public static void Log(string message)
+        if (LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>().Debug)
         {
-            if (LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>().Debug)
-            {
-                Verse.Log.Warning("[RaidLimiter]: " + message);
-            }
+            Verse.Log.Warning("[RaidLimiter]: " + message);
         }
     }
 }

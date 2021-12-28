@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RL.version.label>Installed mod-version: {0}</RL.version.label>
+  <RL.CapByDifficultySettings.label>Cap By Difficulty Settings</RL.CapByDifficultySettings.label>
+  <RL.CapByDifficultySettings.description>Leave this on if you want my raid system to pick a value based off your storyteller's difficulty</RL.CapByDifficultySettings.description>
+  <RL.CapByDifficultySettingsMultiplier.label>Cap By Difficulty Settings Multiplier</RL.CapByDifficultySettingsMultiplier.label>
+  <RL.CapByDifficultySettingsMultiplier.description>Change this number to the base value multiplied by your difficulty. At 4000, the starting multiplier, this means on rough you will end up with 4000 raid point cap, on medium a cap of 2500 or so. 1700 is a good default for medium difficulty.</RL.CapByDifficultySettingsMultiplier.description>
+  <RL.RaidPointsMultiplier.label>Raid Points Multiplier</RL.RaidPointsMultiplier.label>
+  <RL.RaidPointsMultiplier.description>This is not a cap, but just a straight multiplier on top of your difficulty. Maybe you want Rough, but slightly less rough? In that case you can choose rough with your storyteller and choose 0.9 here for example. Or maybe you want extreme's other effects but not it's raid sizes? Choose extreme and 0.5 here.</RL.RaidPointsMultiplier.description>
+  <RL.RaidCap.label>Raid Cap</RL.RaidCap.label>
+  <RL.RaidCap.description>If you just want to set it manually, change -1 to a number. 1600 is what v2 uses.</RL.RaidCap.description>
+  <RL.RaidCapPointsPerColonist.label>Raid Cap Points Per Colonist</RL.RaidCapPointsPerColonist.label>
+  <RL.RaidCapPointsPerColonist.description>Does what it says. Change from -1 to a number you want if you want to use this and your raid cap will be based off your number of colonists. If you have 25 colonists and you set this to 10, your raids will be capped at 2500</RL.RaidCapPointsPerColonist.description>
+  <RL.ColonistMultiplier.label>Colonist Multiplier</RL.ColonistMultiplier.label>
+  <RL.ColonistMultiplier.description>The base game adds points for every colonist you recruit. Maybe you don't want that! Change from 1 to 0 and colonists have no impact on raid points. Or choose some positive multiplier for it to work the way you want.</RL.ColonistMultiplier.description>
+  <RL.CombatAnimalMultiplier.label>Combat Animal Multiplier</RL.CombatAnimalMultiplier.label>
+  <RL.CombatAnimalMultiplier.description>Same as Colonist Multiplier but for combat animals.</RL.CombatAnimalMultiplier.description>
+  <RL.WealthMultiplier.label>Wealth Multiplier</RL.WealthMultiplier.label>
+  <RL.WealthMultiplier.description>Same as Colonist/Animal Multiplier but for wealth. Be careful of tweaking this too much as most of your points come from wealth.</RL.WealthMultiplier.description>
+  <RL.Debug.label>Debug mode</RL.Debug.label>
+  <RL.Debug.description>You probably want this when changing values. The Logger should give warning logs for every active setting except some of the per item multipliers using a before and after so you can see how your tags effect the overall raid points.</RL.Debug.description>
+  <RL.SoftCaps.label>SoftCaps and adaptation probably shouldn't be touched unless you like math ;)</RL.SoftCaps.label>
+  <RL.SoftCapBeginTapering.label>Soft Cap Begin Tapering</RL.SoftCapBeginTapering.label>
+  <RL.SoftCapBeginTapering.description>Soft caps basically have a soft cap at a certain raid value rather than completely cutting it off. Change this from -1 to a raid point amount to start considerably slowing raid points rather than capping them at this value</RL.SoftCapBeginTapering.description>
+  <RL.SoftCapExponent.label>Soft Cap Exponent</RL.SoftCapExponent.label>
+  <RL.SoftCapExponent.description>This is the exponent that will be used if you use this. Example: with 2000 and 0.9, if you had 3000 raid points, it would instead give 2000 + 1000^.9 points</RL.SoftCapExponent.description>
+  <RL.AdaptationCap.label>Adaptation Cap</RL.AdaptationCap.label>
+  <RL.AdaptationCap.description>I default this to being on. This caps the adaptation so you're never getting raids 50% higher than you otherwise would have. Change it to -1 to let the game do what it does normally, change it to 1 to completely get rid of adaptation altogether.</RL.AdaptationCap.description>
+  <RL.AdaptationTapering.label>Adaptation Tapering</RL.AdaptationTapering.label>
+  <RL.AdaptationTapering.description>These work just like the raidsoftcaps only for adaptation.</RL.AdaptationTapering.description>
+  <RL.AdaptationExponent.label>Adaptation Exponent</RL.AdaptationExponent.label>
+  <RL.AdaptationExponent.description>These really aren't useful. I don't know why I added them lol, since the game already massively slows down adaptation after a point. If you want to use it knock yourself out.</RL.AdaptationExponent.description>
+  <RL.Reset.label>Reset values</RL.Reset.label>
+  <RL.LogTitle.label>Using Raid Limiter</RL.LogTitle.label>
+  <RL.LogPoints.label>Final points: {0}</RL.LogPoints.label>
+</LanguageData>
