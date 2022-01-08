@@ -133,7 +133,7 @@ internal class RaidLimiterMod : Mod
         listing_Standard.Gap();
         listing_Standard.Label("RL.AdaptationCap.label".Translate(), -1,
             "RL.AdaptationCap.description".Translate());
-        Settings.AdaptationCap = Widgets.HorizontalSlider(listing_Standard.GetRect(20), Settings.AdaptationCap, 0,
+        Settings.AdaptationCap = Widgets.HorizontalSlider(listing_Standard.GetRect(20), Settings.AdaptationCap, -1f,
             5f, false, Settings.AdaptationCap.ToString(), null, null, 0.1f);
         listing_Standard.Gap();
         listing_Standard.Label("RL.AdaptationTapering.label".Translate(), -1,
