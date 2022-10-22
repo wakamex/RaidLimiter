@@ -8,7 +8,7 @@ internal static class MyLog
     {
         if (LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>().Debug)
         {
-            Verse.Log.Warning("[RaidLimiter]: " + message);
+            Verse.Log.Warning($"[RaidLimiter]: {message}");
         }
     }
 }
