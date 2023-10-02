@@ -41,107 +41,107 @@ internal class RaidLimiter
             new CurvePoint(6000f, 4000f)
         };
         var playerWealthForStoryteller = target.PlayerWealthForStoryteller;
-        var num = simpleCurve.Evaluate(playerWealthForStoryteller);
+        var player_wealth = simpleCurve.Evaluate(playerWealthForStoryteller);
         var dynamicSettings = LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>();
-        MyLog.Log($"Player Wealth Contribution: {num}");
-        num *= dynamicSettings.WealthMultiplier;
-        MyLog.Log($"Player Wealth After Multiplier: {num}");
-        var num2 = 0f;
-        var num3 = 0;
+        MyLog.Log($"Player Wealth Contribution: {player_wealth}");
+        player_wealth *= dynamicSettings.WealthMultiplier;
+        MyLog.Log($"Player Wealth After Multiplier: {player_wealth}");
+        var pawn_wealth_total = 0f;
+        var num_colonists = 0;
         foreach (var pawn in target.PlayerPawnsForStoryteller)
         {
-            var num4 = 0f;
+            var pawn_wealth = 0f;
             var isFreeColonist = pawn.IsFreeColonist;
             if (isFreeColonist)
             {
-                num4 = simpleCurve2.Evaluate(playerWealthForStoryteller) * dynamicSettings.ColonistMultiplier;
-                num3++;
+                pawn_wealth = simpleCurve2.Evaluate(playerWealthForStoryteller) * dynamicSettings.ColonistMultiplier;
+                num_colonists++;
             }
             else
             {
                 if (pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer && !pawn.Downed &&
                     pawn.training.CanAssignToTrain(TrainableDefOf.Release).Accepted)
                 {
-                    num4 = 0.09f * pawn.kindDef.combatPower;
+                    pawn_wealth = 0.09f * pawn.kindDef.combatPower;
                     if (target is Caravan)
                     {
-                        num4 *= 0.5f;
+                        pawn_wealth *= 0.5f;
                     }
 
-                    num4 *= dynamicSettings.CombatAnimalMultiplier;
+                    pawn_wealth *= dynamicSettings.CombatAnimalMultiplier;
                 }
             }
 
-            if (!(num4 > 0f))
+            if (!(pawn_wealth > 0f))
             {
                 continue;
             }
 
             if (pawn.ParentHolder is Building_CryptosleepCasket)
             {
-                num4 *= 0.3f;
+                pawn_wealth *= 0.3f;
             }
 
-            num4 = Mathf.Lerp(num4, num4 * pawn.health.summaryHealth.SummaryHealthPercent, 0.65f);
-            num2 += num4;
+            pawn_wealth = Mathf.Lerp(pawn_wealth, pawn_wealth * pawn.health.summaryHealth.SummaryHealthPercent, 0.65f);
+            pawn_wealth_total += pawn_wealth;
         }
 
-        var num5 = num + num2;
-        num5 *= target.IncidentPointsRandomFactorRange.RandomInRange;
-        num5 = simpleCurve3.Evaluate(num5);
-        var num6 = Find.StoryWatcher.watcherAdaptation.TotalThreatPointsFactor;
-        if (dynamicSettings.AdaptationTapering > 0f && num6 > dynamicSettings.AdaptationTapering)
+        var raid_points = player_wealth + pawn_wealth_total;
+        raid_points *= target.IncidentPointsRandomFactorRange.RandomInRange;
+        raid_points = simpleCurve3.Evaluate(raid_points);
+        var adaptation_factor = Find.StoryWatcher.watcherAdaptation.TotalThreatPointsFactor;
+        if (dynamicSettings.AdaptationTapering > 0f && adaptation_factor > dynamicSettings.AdaptationTapering)
         {
-            MyLog.Log($"adaptation Before AdaptationTapering: {num6}");
-            num6 = dynamicSettings.AdaptationTapering =
-                (float)Math.Pow(num6 - dynamicSettings.AdaptationTapering, dynamicSettings.AdaptationExponent);
-            MyLog.Log($"adaptation after AdaptationTapering: {num6}");
+            MyLog.Log($"adaptation Before AdaptationTapering: {adaptation_factor}");
+            adaptation_factor = dynamicSettings.AdaptationTapering =
+                (float)Math.Pow(adaptation_factor - dynamicSettings.AdaptationTapering, dynamicSettings.AdaptationExponent);
+            MyLog.Log($"adaptation after AdaptationTapering: {adaptation_factor}");
         }
 
-        if (dynamicSettings.AdaptationCap > 0f && num6 > dynamicSettings.AdaptationCap)
+        if (dynamicSettings.AdaptationCap > 0f && adaptation_factor > dynamicSettings.AdaptationCap)
         {
-            MyLog.Log($"adaptation Before AdaptationCap: {num6}");
-            num6 = dynamicSettings.AdaptationCap;
-            MyLog.Log($"adaptation Before AdaptationCap: {num6}");
+            MyLog.Log($"adaptation Before AdaptationCap: {adaptation_factor}");
+            adaptation_factor = dynamicSettings.AdaptationCap;
+            MyLog.Log($"adaptation Before AdaptationCap: {adaptation_factor}");
         }
 
-        num5 *= num6;
-        num5 *= Find.Storyteller.difficulty.threatScale;
-        MyLog.Log($"Before RaidPointsMultiplier: {num5}");
-        num5 *= dynamicSettings.RaidPointsMultiplier;
-        MyLog.Log($"After RaidPointsMultiplier: {num5}");
-        if (dynamicSettings.SoftCapBeginTapering > 0f && num5 > dynamicSettings.SoftCapBeginTapering)
+        raid_points *= adaptation_factor;
+        raid_points *= Find.Storyteller.difficulty.threatScale;
+        MyLog.Log($"Before RaidPointsMultiplier: {raid_points}");
+        raid_points *= dynamicSettings.RaidPointsMultiplier;
+        MyLog.Log($"After RaidPointsMultiplier: {raid_points}");
+        if (dynamicSettings.SoftCapBeginTapering > 0f && raid_points > dynamicSettings.SoftCapBeginTapering)
         {
-            MyLog.Log($"Before SoftCapBeginTapering: {num5}");
-            num5 = dynamicSettings.SoftCapBeginTapering =
-                (float)Math.Pow(num5 - dynamicSettings.SoftCapBeginTapering, dynamicSettings.SoftCapExponent);
-            MyLog.Log($"After SoftCapBeginTapering: {num5}");
+            MyLog.Log($"Before SoftCapBeginTapering: {raid_points}");
+            raid_points = dynamicSettings.SoftCapBeginTapering =
+                (float)Math.Pow(raid_points - dynamicSettings.SoftCapBeginTapering, dynamicSettings.SoftCapExponent);
+            MyLog.Log($"After SoftCapBeginTapering: {raid_points}");
         }
 
         if (dynamicSettings.RaidCapPointsPerColonist > 0f)
         {
-            MyLog.Log($"Before RaidCapPointsPerColonist: {num5}");
-            num5 = Math.Min(num5, dynamicSettings.RaidCapPointsPerColonist * num3);
-            MyLog.Log($"After RaidCapPointsPerColonist: {num5}");
+            MyLog.Log($"Before RaidCapPointsPerColonist: {raid_points}");
+            raid_points = Math.Min(raid_points, dynamicSettings.RaidCapPointsPerColonist * num_colonists);
+            MyLog.Log($"After RaidCapPointsPerColonist: {raid_points}");
         }
 
         if (dynamicSettings.RaidCap > 0f)
         {
-            MyLog.Log($"Before RaidCap: {num5}");
-            num5 = Math.Min(dynamicSettings.RaidCap, num5);
-            MyLog.Log($"After RaidCap: {num5}");
+            MyLog.Log($"Before RaidCap: {raid_points}");
+            raid_points = Math.Min(dynamicSettings.RaidCap, raid_points);
+            MyLog.Log($"After RaidCap: {raid_points}");
         }
 
         if (dynamicSettings.CapByDifficultySettings)
         {
-            MyLog.Log($"Before CapByDifficultySettings: {num5}");
-            num5 = Math.Min(
-                num5 * dynamicSettings.CapByDifficultySettingsMultiplier * Find.Storyteller.difficulty.threatScale,
-                num5);
-            MyLog.Log($"After CapByDifficultySettings: {num5}");
+            MyLog.Log($"Before CapByDifficultySettings: {raid_points}");
+            raid_points = Math.Min(
+                raid_points * dynamicSettings.CapByDifficultySettingsMultiplier * Find.Storyteller.difficulty.threatScale,
+                raid_points);
+            MyLog.Log($"After CapByDifficultySettings: {raid_points}");
         }
 
-        __result = num5;
+        __result = raid_points;
         return false;
     }
 }
