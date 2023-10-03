@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -15,133 +17,61 @@ namespace RaidLimiter;
 })]
 internal class RaidLimiter
 {
+
+    private static ValueTuple<float, string> CalculatePawnWealth(Pawn pawn, SimpleCurve colByWealthCurve, SimpleCurve mechFactorCurve, SimpleCurve ageCurve, IIncidentTarget target, float playerWealth)
+    {
+        float wealth = 0f;
+        string category = "Other";
+        if (pawn.IsFreeColonist) { wealth = colByWealthCurve.Evaluate(playerWealth); category = "Adult"; }
+        else if (pawn.IsSlaveOfColony) { wealth = colByWealthCurve.Evaluate(playerWealth) * 0.75f; category = "Slave"; }
+        else if (pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer && !pawn.Downed && pawn.training.CanAssignToTrain(TrainableDefOf.Release).Accepted) {
+            wealth = 0.08f * pawn.kindDef.combatPower * ((target is Caravan) ? 0.7f : 1f);
+            category = "Animal";
+        }
+        else if (pawn.IsColonyMech && !pawn.Downed) { wealth = pawn.kindDef.combatPower * mechFactorCurve.Evaluate(playerWealth); category = "Mech"; }
+
+        if (wealth > 0f) {
+            wealth *= (pawn.ParentHolder is Building_CryptosleepCasket) ? 0.3f : 1f;
+            wealth = Mathf.Lerp(wealth, wealth * pawn.health.summaryHealth.SummaryHealthPercent, 0.65f);
+            if (ModsConfig.BiotechActive && pawn.RaceProps.Humanlike) wealth *= ageCurve.Evaluate(pawn.ageTracker.AgeBiologicalYearsFloat);
+        }
+        if (pawn.ageTracker.AgeBiologicalYearsFloat < 18f) category = "Teen";
+        else if (pawn.ageTracker.AgeBiologicalYearsFloat < 13f) category = "Child";
+        else if (pawn.ageTracker.AgeBiologicalYearsFloat < 3f) category = "Baby";
+        return (wealth, category);
+    }
+
     private static bool Prefix(IIncidentTarget target, ref float __result)
     {
-        var simpleCurve = new SimpleCurve
-        {
-            new CurvePoint(0f, 0f),
-            new CurvePoint(300000f, 1800f),
-            new CurvePoint(600000f, 3000f),
-            new CurvePoint(900000f, 3600f)
-        };
-        var simpleCurve2 = new SimpleCurve
-        {
-            new CurvePoint(0f, 40f),
-            new CurvePoint(300000f, 110f)
-        };
-        var simpleCurve3 = new SimpleCurve
-        {
-            new CurvePoint(0f, 35f),
-            new CurvePoint(100f, 35f),
-            new CurvePoint(1000f, 700f),
-            new CurvePoint(2000f, 1400f),
-            new CurvePoint(3000f, 2100f),
-            new CurvePoint(4000f, 2800f),
-            new CurvePoint(5000f, 3500f),
-            new CurvePoint(6000f, 4000f)
-        };
-        var playerWealthForStoryteller = target.PlayerWealthForStoryteller;
-        var player_wealth = simpleCurve.Evaluate(playerWealthForStoryteller);
-        var dynamicSettings = LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>();
-        MyLog.Log($"Player Wealth Contribution: {player_wealth}");
-        player_wealth *= dynamicSettings.WealthMultiplier;
-        MyLog.Log($"Player Wealth After Multiplier: {player_wealth}");
-        var pawn_wealth_total = 0f;
-        var num_colonists = 0;
+        var PointsPerWealthCurve = new SimpleCurve { {0f, 0f}, {14000f, 0f}, {400000f, 2400f}, {700000f, 3600f}, {1000000f, 4200f} };
+        var PointsPerColonistByWealthCurve = new SimpleCurve { {0f, 15f}, {10000f, 15f}, {400000f, 140f}, {1000000f, 200f} };
+        var PointsFactorForColonyMechsCurve = new SimpleCurve { {0f, 0.2f}, {10000f, 0.2f}, {400000f, 0.3f}, {1000000f, 0.4f} };
+        var PointsFactorForPawnAgeYearsCurve = new SimpleCurve { {3f, 0f}, {13f, 0.5f}, {18f, 1f} };
+
+		StringBuilder sb = new StringBuilder();
+        var settings = LoadedModManager.GetMod<RaidLimiterMod>().GetSettings<RaidLimiterSettings>();
+        float playerWealth = PointsPerWealthCurve.Evaluate(target.PlayerWealthForStoryteller) * settings.WealthMultiplier;
+        sb.AppendLine($"=== RAID ANALYSIS ===\nPlayer Wealth: {playerWealth}");
+        
+        float pawnWealthTotal = 0f;
+        Dictionary<string, float> categorySubtotals = new Dictionary<string, float> { {"Adult", 0}, {"Slave", 0}, {"Animal", 0}, {"Mech", 0}, {"Teen", 0}, {"Child", 0}, {"Baby", 0}, {"Other", 0} };
         foreach (var pawn in target.PlayerPawnsForStoryteller)
         {
-            var pawn_wealth = 0f;
-            var isFreeColonist = pawn.IsFreeColonist;
-            if (isFreeColonist)
-            {
-                pawn_wealth = simpleCurve2.Evaluate(playerWealthForStoryteller) * dynamicSettings.ColonistMultiplier;
-                num_colonists++;
-            }
-            else
-            {
-                if (pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer && !pawn.Downed &&
-                    pawn.training.CanAssignToTrain(TrainableDefOf.Release).Accepted)
-                {
-                    pawn_wealth = 0.09f * pawn.kindDef.combatPower;
-                    if (target is Caravan)
-                    {
-                        pawn_wealth *= 0.5f;
-                    }
-
-                    pawn_wealth *= dynamicSettings.CombatAnimalMultiplier;
-                }
-            }
-
-            if (!(pawn_wealth > 0f))
-            {
-                continue;
-            }
-
-            if (pawn.ParentHolder is Building_CryptosleepCasket)
-            {
-                pawn_wealth *= 0.3f;
-            }
-
-            pawn_wealth = Mathf.Lerp(pawn_wealth, pawn_wealth * pawn.health.summaryHealth.SummaryHealthPercent, 0.65f);
-            pawn_wealth_total += pawn_wealth;
+            if (pawn.IsQuestLodger()) continue;
+            (float pawnWealth, string category) = CalculatePawnWealth(pawn, PointsPerColonistByWealthCurve, PointsFactorForColonyMechsCurve, PointsFactorForPawnAgeYearsCurve, target, playerWealth);
+            categorySubtotals[category] += pawnWealth;
+            sb.AppendLine($" PAWN {pawn}: {pawnWealth}");
+            pawnWealthTotal += pawnWealth;
         }
+        sb.AppendLine("raid points subtotal: " + playerWealth + pawnWealthTotal + "(" + pawnWealthTotal/(playerWealth + pawnWealthTotal)*100 + "% pawns, "+playerWealth+" wealth"+pawnWealthTotal+" pawns)");
+        foreach (var kvp in categorySubtotals) sb.AppendLine($" {kvp.Key.PadRight(20)} {kvp.Value}");
+        
+        float adaptationFactor = Mathf.Lerp(1f, Find.StoryWatcher.watcherAdaptation.TotalThreatPointsFactor, Find.Storyteller.difficulty.adaptationEffectFactor);
+        float raidPoints = Mathf.Clamp((playerWealth + pawnWealthTotal) * adaptationFactor * Find.Storyteller.difficulty.threatScale * Find.Storyteller.def.pointsFactorFromDaysPassed.Evaluate(GenDate.DaysPassedSinceSettle), Rand.RangeSeeded(35f, Find.Storyteller.difficulty.MinThreatPointsCeiling, Find.TickManager.TicksGame / 2500), 10000f);
+        sb.AppendLine("Final raid points: " + raidPoints + "(Adaptation: " + adaptationFactor + ")");
+        MyLog.Log(sb.ToString());
 
-        var raid_points = player_wealth + pawn_wealth_total;
-        raid_points *= target.IncidentPointsRandomFactorRange.RandomInRange;
-        raid_points = simpleCurve3.Evaluate(raid_points);
-        var adaptation_factor = Find.StoryWatcher.watcherAdaptation.TotalThreatPointsFactor;
-        if (dynamicSettings.AdaptationTapering > 0f && adaptation_factor > dynamicSettings.AdaptationTapering)
-        {
-            MyLog.Log($"adaptation Before AdaptationTapering: {adaptation_factor}");
-            adaptation_factor = dynamicSettings.AdaptationTapering =
-                (float)Math.Pow(adaptation_factor - dynamicSettings.AdaptationTapering, dynamicSettings.AdaptationExponent);
-            MyLog.Log($"adaptation after AdaptationTapering: {adaptation_factor}");
-        }
-
-        if (dynamicSettings.AdaptationCap > 0f && adaptation_factor > dynamicSettings.AdaptationCap)
-        {
-            MyLog.Log($"adaptation Before AdaptationCap: {adaptation_factor}");
-            adaptation_factor = dynamicSettings.AdaptationCap;
-            MyLog.Log($"adaptation Before AdaptationCap: {adaptation_factor}");
-        }
-
-        raid_points *= adaptation_factor;
-        raid_points *= Find.Storyteller.difficulty.threatScale;
-        MyLog.Log($"Before RaidPointsMultiplier: {raid_points}");
-        raid_points *= dynamicSettings.RaidPointsMultiplier;
-        MyLog.Log($"After RaidPointsMultiplier: {raid_points}");
-        if (dynamicSettings.SoftCapBeginTapering > 0f && raid_points > dynamicSettings.SoftCapBeginTapering)
-        {
-            MyLog.Log($"Before SoftCapBeginTapering: {raid_points}");
-            raid_points = dynamicSettings.SoftCapBeginTapering =
-                (float)Math.Pow(raid_points - dynamicSettings.SoftCapBeginTapering, dynamicSettings.SoftCapExponent);
-            MyLog.Log($"After SoftCapBeginTapering: {raid_points}");
-        }
-
-        if (dynamicSettings.RaidCapPointsPerColonist > 0f)
-        {
-            MyLog.Log($"Before RaidCapPointsPerColonist: {raid_points}");
-            raid_points = Math.Min(raid_points, dynamicSettings.RaidCapPointsPerColonist * num_colonists);
-            MyLog.Log($"After RaidCapPointsPerColonist: {raid_points}");
-        }
-
-        if (dynamicSettings.RaidCap > 0f)
-        {
-            MyLog.Log($"Before RaidCap: {raid_points}");
-            raid_points = Math.Min(dynamicSettings.RaidCap, raid_points);
-            MyLog.Log($"After RaidCap: {raid_points}");
-        }
-
-        if (dynamicSettings.CapByDifficultySettings)
-        {
-            MyLog.Log($"Before CapByDifficultySettings: {raid_points}");
-            raid_points = Math.Min(
-                raid_points * dynamicSettings.CapByDifficultySettingsMultiplier * Find.Storyteller.difficulty.threatScale,
-                raid_points);
-            MyLog.Log($"After CapByDifficultySettings: {raid_points}");
-        }
-
-        __result = raid_points;
+        __result = raidPoints;
         return false;
     }
 }
